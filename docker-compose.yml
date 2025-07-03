@@ -9,7 +9,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: mydata
-      MYSQL_USER: testuser
+      MYSQL_USER: abdo
       MYSQL_PASSWORD: testpass
     ports:
       - "3306:3306"
