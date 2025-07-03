@@ -8,7 +8,7 @@ const PORT = 3000; // المنفذ الذي سيعمل عليه السيرفر
 
 // 3. تعريف معلومات الاتصال بقاعدة البيانات
 const sequelize = new Sequelize('mydata', 'abdo', 'testpass', {
-    host: 'mysql', // اسم الخدمة من docker-compose
+    host: 'localhost', // اسم الخدمة من docker-compose
     dialect: 'mysql'
 });
 
