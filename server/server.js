@@ -1,31 +1,28 @@
-// 1. استدعاء المكتبات المطلوبة
 const express = require('express');
-const { Sequelize, DataTypes } = require('sequelize'); // <-- تأكد من إضافة DataTypes
+const { Sequelize, DataTypes } = require('sequelize'); 
 
-// 2. إنشاء تطبيق Express
 const app = express();
 const PORT = 3000;
 
-// 3. تعريف معلومات الاتصال بقاعدة البيانات
+// DB infornation
 const sequelize = new Sequelize('mydata', 'abdo', 'testpass', {
     host: 'localhost',
     dialect: 'mysql'
 });
 
-// 4. اختبار الاتصال بقاعدة البيانات
-sequelize.authenticate()
-    .then(() => {
-        console.log('✅ Connection to database has been established successfully.');
-    })
-    .catch(err => {
-        console.error('❌ Unable to connect to the database:', err);
-    });
+//test connection
+async function testDbConnection() {
+  try {
+    await sequelize.authenticate();
+    console.log(' Connection has been established successfully.');
+  } catch (error) {
+    console.error(' Unable to connect to the database:', error);
+  }
+}
+testDbConnection();
 
-// ===================================
-//      ## أضف هذا القسم المفقود ##
-// ===================================
 
-// 5. تعريف موديل المهمة (Task Model)
+// task model
 const Task = sequelize.define('Task', {
   title: {
     type: DataTypes.STRING,
@@ -37,16 +34,13 @@ const Task = sequelize.define('Task', {
   }
 });
 
-// 6. مزامنة الموديل مع قاعدة البيانات لإنشاء الجدول
+// connect the model with the database
 sequelize.sync()
-  .then(() => console.log('✅ Tables synchronized'))
-  .catch(err => console.error('❌ Error synchronizing tables:', err));
+  .then(() => console.log(' Tables synchronized'))
+  .catch(err => console.error(' Error synchronizing tables:', err));
 
-// ===================================
-//    ## نهاية القسم المفقود ##
-// ===================================
 
-// 7. إنشاء Endpoints
+//  create Endpoints
 app.get('/', (req, res) => {
     res.json({ message: "Server is running!" });
 });
@@ -59,16 +53,43 @@ app.get('/create-task', async (req, res) => {
   }
 
   try {
-    // الآن، سيعرف Node.js ما هو Task
     const newTask = await Task.create({ title: taskTitle });
     res.status(201).json(newTask);
   } catch (error) {
-    console.error(error); // طباعة الخطأ في السيرفر للمساعدة في التشخيص
+    console.error(error);
     res.status(500).json({ error: 'Failed to create task' });
   }
 });
 
-// 8. تشغيل السيرفر
+//------------------------------------
+
+app.post('/get-all-tasks', async (req, res) => {
+  try {
+    const allTasks = await Task.findAll();
+    res.json(allTasks);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving tasks' });
+  }
+});
+//------------------------------------
+
+app.patch('/update-task/:id', async (req, res) => {
+  try {
+    const taskId = req.params.id;
+
+    await Task.update(
+      { status: 'done' },
+      { where: { id: taskId } }
+    );
+
+    res.json({ message: 'Update operation completed.' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update task.' });
+  }
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Server is listening on http://localhost:${PORT}`);
+    console.log(`Server is listening on http://localhost:${PORT}`);
 });
